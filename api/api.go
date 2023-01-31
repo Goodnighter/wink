@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"log"
 	"net/http"
 	"wink/model"
 	"wink/service"
 )
 
+var db = service.InitDB()
+
 func Register(g *gin.Context) {
-	db := service.InitDB()
 	name := g.PostForm("name")
 	password := g.PostForm("password")
 	telephone := g.PostForm("telephone")
@@ -65,4 +67,44 @@ func IsTelephoneExist(db *gorm.DB, telephone string) bool {
 		return true
 	}
 	return false
+}
+
+func Login(g *gin.Context) {
+	//params
+	phone := g.PostForm("phone")
+	//password := g.PostForm("password")
+	//query
+	var user model.User
+	db.Where("telephone = ?", phone).First(&user)
+	if user.ID == 0 {
+		g.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422, "mas": "not exist"})
+		return
+	}
+	token, err := service.ReleaseToken(user)
+	if err != nil {
+		g.JSON(http.StatusInternalServerError, gin.H{
+			"code": 500,
+			"msg":  "error",
+		})
+		log.Printf("token error : %v", err)
+		return
+	}
+	g.JSON(200, gin.H{
+		"code": 200,
+		"data": gin.H{"token": token},
+	})
+}
+
+func GetUserInfo(g *gin.Context) {
+	user, _ := g.Get("user")
+	type UserInfo struct {
+		Name string
+	}
+	g.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"data": gin.H{
+			"user": user,
+		},
+	})
+
 }

@@ -25,7 +25,3 @@ func InitDB() *gorm.DB {
 	fmt.Print("db success")
 	return db
 }
-
-func GetDB() *gorm.DB {
-	return DB
-}
