@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"net/http"
+	"wink/middleware"
 	"wink/model"
 	"wink/service"
 )
@@ -100,11 +101,7 @@ func GetUserInfo(g *gin.Context) {
 	type UserInfo struct {
 		Name string
 	}
-	g.JSON(http.StatusOK, gin.H{
-		"code": 200,
-		"data": gin.H{
-			"user": user,
-		},
-	})
-
+	middleware.Response(g, http.StatusOK, 200, gin.H{
+		"user": model.ToUserInfo(user.(model.User)),
+	}, "")
 }

@@ -24,7 +24,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		tokenString = tokenString[7:]
 
 		token, claims, err := service.ParseToken(tokenString)
-		if err != nil || token.Vaild {
+		if err != nil || !token.Valid {
 			g.JSON(http.StatusUnauthorized, gin.H{
 				"code": 401,
 				"msg":  "not auth",
@@ -48,5 +48,19 @@ func AuthMiddleware() gin.HandlerFunc {
 			g.Abort()
 			return
 		}
+		//
+		g.Set("user", user)
+		g.Next()
 	}
+}
+
+// response
+func Response(g *gin.Context, httpStatus int, code int, data gin.H, msg string) {
+	g.JSON(httpStatus, gin.H{"code": code, "data": data, "msg": msg})
+}
+func Success(g *gin.Context, httpStatus int, code int, data gin.H, msg string) {
+	g.JSON(httpStatus, gin.H{"code": code, "data": 200})
+}
+func Fail(g *gin.Context, httpStatus int, code int, data gin.H, msg string) {
+	g.JSON(httpStatus, gin.H{"code": code, "data": 400})
 }

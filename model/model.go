@@ -8,3 +8,15 @@ type User struct {
 	Password  string
 	Telephone string
 }
+
+type UserInfo struct {
+	Name  string
+	Phone string
+}
+
+func ToUserInfo(user User) UserInfo {
+	return UserInfo{
+		user.Name,
+		user.Telephone,
+	}
+}
